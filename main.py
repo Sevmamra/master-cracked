@@ -661,8 +661,7 @@ async def main():
     print("Bot is running...")
     await idle()
 
-from pyrogram.idle import idle
-import asyncio
+from pyrogram import idle
 
 if __name__ == "__main__":
     asyncio.run(main())
