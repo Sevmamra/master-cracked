@@ -9,6 +9,7 @@ import subprocess
 import urllib.parse
 import yt_dlp
 import cloudscraper
+from datetime import datetime, timedelta
 from logs import logging
 from bs4 import BeautifulSoup
 import core as helper
@@ -20,7 +21,6 @@ from pytube import YouTube
 from pymongo import MongoClient
 from aiohttp import web
 import random
-
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from pyrogram.errors import FloodWait
@@ -35,54 +35,110 @@ mongo = MongoClient(MONGO_URL)
 db = mongo["mini_auth_bot"]
 auth_col = db["auth_users"]
 
+# ==== HELPERS ====
+def parse_duration(duration_str):
+    pattern = r"(\d+)([smhdwMy])"
+    match = re.match(pattern, duration_str)
+    if not match:
+        return None
+    num, unit = match.groups()
+    num = int(num)
+    if unit == "s":
+        return timedelta(seconds=num)
+    if unit == "m":
+        return timedelta(minutes=num)
+    if unit == "h":
+        return timedelta(hours=num)
+    if unit == "d":
+        return timedelta(days=num)
+    if unit == "w":
+        return timedelta(weeks=num)
+    if unit == "M":
+        return timedelta(days=30 * num)
+    if unit == "y":
+        return timedelta(days=365 * num)
+    return None
+
 def is_authorized(user_id):
-    return auth_col.find_one({"_id": user_id}) or user_id == OWNER_ID
+    user = auth_col.find_one({"_id": user_id})
+    if user:
+        if "expires_at" in user:
+            if user["expires_at"] < datetime.utcnow():
+                auth_col.delete_one({"_id": user_id})  # Auto-remove if expired
+                return False
+        return True
+    return user_id == OWNER_ID
+
+# ==== BACKGROUND TASK ====
+async def auto_remove_expired_users():
+    while True:
+        now = datetime.utcnow()
+        result = auth_col.delete_many({"expires_at": {"$lt": now}})
+        if result.deleted_count:
+            print(f"Auto-removed {result.deleted_count} expired users.")
+        await asyncio.sleep(60)
+
+# ==== COMMANDS ====
 
 @bot.on_message(filters.command("add") & filters.user(OWNER_ID))
 async def add_user(_, m):
-    if len(m.command) < 2:
-        return await m.reply("⚠️ Usage: /add <user_id>")
+    if len(m.command) < 3:
+        return await m.reply_text("⚠️ Usage: /add <user_id> <duration> (e.g. 1m, 2h, 7d)")
     try:
-        uid = int(m.command[1])
-        if not auth_col.find_one({"_id": uid}):
-            auth_col.insert_one({"_id": uid})
-            await m.reply("✅ User added successfully.")
+        user_id = int(m.command[1])
+        duration = parse_duration(m.command[2])
+        if not duration:
+            return await m.reply_text("❌ Invalid duration format.")
+
+        expires_at = datetime.utcnow() + duration
+        if not auth_col.find_one({"_id": user_id}):
+            auth_col.insert_one({"_id": user_id, "expires_at": expires_at})
+            await m.reply_text(f"✅ User added till {expires_at} UTC.")
             try:
-                await client.send_message(uid, "✅ You have been authorized!")
+                await client.send_message(user_id, f"✅ You have been authorized until {expires_at} UTC!")
             except Exception as e:
                 print(f"Failed to notify user: {e}")
         else:
-            await m.reply("ℹ️ User already exists.")
+            await m.reply_text("ℹ️ User already exists.")
     except:
-        await m.reply("❌ Invalid ID format.")
+        await m.reply_text("❌ Invalid ID format.")
 
 @bot.on_message(filters.command("rem") & filters.user(OWNER_ID))
 async def remove_user(_, m):
     if len(m.command) < 2:
-        return await m.reply("⚠️ Usage: /rem <user_id>")
+        return await m.reply_text("⚠️ Usage: /rem <user_id>")
     try:
-        uid = int(m.command[1])
-        result = auth_col.delete_one({"_id": uid})
-        await m.reply("✅ User removed." if result.deleted_count else "❌ User not found.")
+        user_id = int(m.command[1])
+        result = auth_col.delete_one({"_id": user_id})
+        await m.reply_text("✅ User removed." if result.deleted_count else "❌ User not found.")
         try:
-            await client.send_message(uid, "❌ You have been removed from authorized!")
+            await client.send_message(user_id, "❌ You have been removed from authorized!")
         except Exception as e:
             print(f"Failed to notify user: {e}")
     except:
-        await m.reply("❌ Invalid ID format.")
-        
+        await m.reply_text("❌ Invalid ID format.")
+
 @bot.on_message(filters.command("clear") & filters.user(OWNER_ID))
 async def clear_all_users(_, m):
     result = auth_col.delete_many({})
-    await m.reply(f"✅ All users deleted.\nTotal removed: {result.deleted_count}")
-    
+    await m.reply_text(f"✅ All users deleted.\nTotal removed: {result.deleted_count}")
+
 @bot.on_message(filters.command("users") & filters.user(OWNER_ID))
 async def show_users(_, m):
     users = list(auth_col.find())
     if not users:
-        return await m.reply("🚫 No authorized users.")
-    user_list = "\n".join(str(u["_id"]) for u in users)
-    await m.reply(f"👥 Authorized Users:\n\n{user_list}")
+        return await m.reply_text("🚫 No authorized users.")
+    user_list = "\n".join(f"{u['_id']} - Exp: {u.get('expires_at', 'N/A')}" for u in users)
+    await m.reply_text(f"👥 Authorized Users:\n\n{user_list}")
+
+@bot.on_message(filters.command("myplan"))
+async def my_plan(_, m):
+    user = auth_col.find_one({"_id": m.from_user.id})
+    if user:
+        exp = user.get("expires_at")
+        await m.reply_text(f"✅ You are authorized.\nExpires at: {exp} UTC")
+    else:
+        await m.reply_text("❌ You are not authorized.")
 #====================================================================================================
 
 photologo = 'https://tinypic.host/images/2025/02/07/DeWatermark.ai_1738952933236-1.png'
@@ -599,6 +655,15 @@ async def txt_handler(bot: Client, m: Message):
     await bot.send_message(channel_id, f"-┈━═.•°✅ Completed ✅°•.═━┈-\n<blockquote>🎯𝙱𝚊𝚝𝚌𝚑 𝙽𝚊𝚖𝚎 » {b_name}</blockquote>\n\n<blockquote>🔗 Total URLs: {len(links)} \n┃   ┠🔴 Total Failed URLs: {failed_count}\n┃   ┠🟢 Total Successful URLs: {success_count}\n┃   ┃   ┠🎥 Total Video URLs: {other_count}\n┃   ┃   ┠📄 Total PDF URLs: {pdf_count}\n┃   ┃   ┠📸 Total IMAGE URLs: {img_count}</blockquote>\n")
     
 #================================================================================================================================
-bot.run()
+# ==== START ====
+async def main():
+    await bot.start()
+    asyncio.create_task(auto_remove_expired_users())
+    print("Bot is running...")
+    await idle()
+
+from pyrogram.idle import idle
+import asyncio
+
 if __name__ == "__main__":
     asyncio.run(main())
