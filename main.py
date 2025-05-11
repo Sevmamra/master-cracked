@@ -30,7 +30,21 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 #========================================================================================================================================================================
 cookies_file_path= "youtube_cookies.txt"
-#==================================================================================================================================
+#====================================================================================================
+
+photologo = 'https://tinypic.host/images/2025/02/07/DeWatermark.ai_1738952933236-1.png'
+photoyt = 'https://tinypic.host/images/2025/03/18/YouTube-Logo.wine.png'
+photocp = 'https://tinypic.host/images/2025/03/28/IMG_20250328_133126.jpg'
+
+#================================================================================================================================
+# Initialize the bot
+bot = Client(
+    "bot",
+    api_id=API_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
+)
+#================================================================================================================================
 mongo = MongoClient(MONGO_URL)
 db = mongo["mini_auth_bot"]
 auth_col = db["auth_users"]
@@ -139,21 +153,6 @@ async def my_plan(_, m):
         await m.reply_text(f"✅ You are authorized.\nExpires at: {exp} UTC")
     else:
         await m.reply_text("❌ You are not authorized.")
-#====================================================================================================
-
-photologo = 'https://tinypic.host/images/2025/02/07/DeWatermark.ai_1738952933236-1.png'
-photoyt = 'https://tinypic.host/images/2025/03/18/YouTube-Logo.wine.png'
-photocp = 'https://tinypic.host/images/2025/03/28/IMG_20250328_133126.jpg'
-
-#================================================================================================================================
-# Initialize the bot
-bot = Client(
-    "bot",
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
-
 #================================================================================================================================
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
