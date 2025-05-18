@@ -32,7 +32,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 cookies_file_path= "youtube_cookies.txt"
 #====================================================================================================
 
-photologo = 'https://tinypic.host/images/2025/02/07/DeWatermark.ai_1738952933236-1.png'
+photologo = 'https://i.ibb.co/0RQWk275/x.jpg'
 photoyt = 'https://tinypic.host/images/2025/03/18/YouTube-Logo.wine.png'
 photocp = 'https://tinypic.host/images/2025/03/28/IMG_20250328_133126.jpg'
 
@@ -235,7 +235,7 @@ async def start(bot, m: Message):
             "🌟 Welcome Boss☠️! 🌟\n\n" +
             "Great! You are a premium member!\n"
             "Use Command : /drm to get started 🌟\n\n"
-            f"<blockquote>If you face any problem contact - [𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎](https://t.me/saini_contact_bot)</blockquote>"
+            f"<blockquote>If you face any problem contact - [𝐂𝐀 𝐈𝐧𝐭𝐞𝐫 𝐗](https://t.me/saini_contact_bot)</blockquote>"
         )
     else:
         await asyncio.sleep(2)
@@ -284,7 +284,7 @@ async def restart_handler(_, m):
     
     user_id = m.from_user.id
     if not is_authorized(user_id):
-        await m.message.reply("❌ 𝚈𝚘𝚞 𝚊𝚛𝚎 𝚗𝚘𝚝 𝚊𝚞𝚝𝚑𝚘𝚛𝚒𝚣𝚎𝚍.\n💎 𝙱𝚞𝚢 𝙿𝚛𝚎𝚖𝚒𝚞𝚖  [𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎](https://t.me/saini_contact_bot) !")
+        await m.message.reply("❌ 𝚈𝚘𝚞 𝚊𝚛𝚎 𝚗𝚘𝚝 𝚊𝚞𝚝𝚑𝚘𝚛𝚒𝚣𝚎𝚍.\n💎 𝙱𝚞𝚢 𝙿𝚛𝚎𝚖𝚒𝚞𝚖  [𝐂𝐀 𝐈𝐧𝐭𝐞𝐫 𝐗](https://t.me/saini_contact_bot) !")
         return
     
     await m.reply_text("🚦**STOPPED**🚦", True)
@@ -296,7 +296,7 @@ async def txt_handler(bot: Client, m: Message):
     
     user_id = m.from_user.id
     if not is_authorized(user_id):
-        await m.message.reply("❌ 𝚈𝚘𝚞 𝚊𝚛𝚎 𝚗𝚘𝚝 𝚊𝚞𝚝𝚑𝚘𝚛𝚒𝚣𝚎𝚍.\n💎 𝙱𝚞𝚢 𝙿𝚛𝚎𝚖𝚒𝚞𝚖  [𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎](https://t.me/saini_contact_bot) !")
+        await m.message.reply("❌ 𝚈𝚘𝚞 𝚊𝚛𝚎 𝚗𝚘𝚝 𝚊𝚞𝚝𝚑𝚘𝚛𝚒𝚣𝚎𝚍.\n💎 𝙱𝚞𝚢 𝙿𝚛𝚎𝚖𝚒𝚞𝚖  [𝐂𝐀 𝐈𝐧𝐭𝐞𝐫 𝐗](https://t.me/saini_contact_bot) !")
         return
     
     editable = await m.reply_text(f"__Hii, I am non-drm Downloader Bot__\n<blockquote><i>Send Me Your text file which enclude Name with url...\nE.g: Name: Link</i></blockquote>")
@@ -304,7 +304,7 @@ async def txt_handler(bot: Client, m: Message):
     x = await input.download()
     await input.delete(True)
     file_name, ext = os.path.splitext(os.path.basename(x))
-    credit = f"𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎"
+    credit = f"𝐂𝐀 𝐈𝐧𝐭𝐞𝐫 𝐗"
     pdf_count = 0
     img_count = 0
     zip_count = 0
@@ -374,7 +374,7 @@ async def txt_handler(bot: Client, m: Message):
     raw_text3 = input3.text
     await input3.delete(True)
     if raw_text3 == '/d':
-        CR = '𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎 🕊️'
+        CR = '[𝐂𝐀 𝐈𝐧𝐭𝐞𝐫 𝐗](https://t.me/Inter_X_Admin_Bot)'
     else:
         CR = raw_text3
 
@@ -414,7 +414,7 @@ async def txt_handler(bot: Client, m: Message):
     try:
         batch_message = await bot.send_message(chat_id=channel_id, text=f"<blockquote><b>🎯Target Batch : {b_name}</b></blockquote>")
     except Exception as e:
-        await m.reply_text(f"**Fail Reason »**\n<blockquote><i>{e}</i></blockquote>\n\n✦𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐁𝐲 ✦ `🌟『𝙎𝘼𝙄𝙉𝙄 𝘽𝙊𝙏𝙎』🌟`")
+        await m.reply_text(f"**Fail Reason »**\n<blockquote><i>{e}</i></blockquote>\n\n✦𝐁𝐨𝐭 𝐌𝐚𝐝𝐞 𝐁𝐲 ✦ `🌟『𝐂𝐀 𝐈𝐧𝐭𝐞𝐫 𝐗』🌟`")
         return   
             
     failed_count = 0
